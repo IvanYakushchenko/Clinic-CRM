@@ -1,125 +1,124 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
+import DoctorModal from "../components/DoctorModal";
+import DoctorCard from "../components/DoctorCard";
+import ConfirmDeleteModal from "../components/DeleteDoctorModal";
 
-export default function Doctors() {
+export default function DoctorsPage() {
   const [doctors, setDoctors] = useState(() => {
     const saved = localStorage.getItem("doctors");
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [form, setForm] = useState({
-    fullName: "",
-    phone: "",
-    specialization: "",
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingDoctor, setEditingDoctor] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [confirmDeleteDoctor, setConfirmDeleteDoctor] = useState(null); // Замість ID
+
+  useEffect(() => {
+    localStorage.setItem("doctors", JSON.stringify(doctors));
+  }, [doctors]);
+
+  const handleAdd = (newDoctor) => {
+    if (editingDoctor) {
+      setDoctors((prev) =>
+        prev.map((doc) => (doc.id === editingDoctor.id ? newDoctor : doc))
+      );
+    } else {
+      setDoctors((prev) => [...prev, newDoctor]);
+    }
+    setIsModalOpen(false);
+    setEditingDoctor(null);
+  };
+
+  const handleEdit = (doctor) => {
+    setEditingDoctor(doctor);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id) => {
+    const updated = doctors.filter((doc) => doc.id !== id);
+    setDoctors(updated);
+  };
+
+  const filteredDoctors = doctors.filter((doc) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      doc.name.toLowerCase().includes(term) ||
+      doc.specialization.toLowerCase().includes(term)
+    );
   });
 
-  const [editingIndex, setEditingIndex] = useState(null);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.fullName || !form.phone || !form.specialization) return;
-
-    const updated = [...doctors];
-    if (editingIndex !== null) {
-      updated[editingIndex] = form;
-    } else {
-      updated.push(form);
-    }
-    setDoctors(updated);
-    localStorage.setItem("doctors", JSON.stringify(updated));
-    setForm({ fullName: "", phone: "", specialization: "" });
-    setEditingIndex(null);
-  };
-
-  const handleEdit = (index) => {
-    setForm(doctors[index]);
-    setEditingIndex(index);
-  };
-
-  const handleDelete = (index) => {
-    const confirmed = window.confirm("Are you sure you want to delete this doctor?");
-    if (!confirmed) return;
-
-    const updated = doctors.filter((_, i) => i !== index);
-    setDoctors(updated);
-    localStorage.setItem("doctors", JSON.stringify(updated));
-  };
-
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold mb-6 text-center">Doctors Management</h2>
+    <div className="p-6">
+      {/* Header */}
+      <div className="grid grid-cols-3 items-center mb-6">
+        <div></div>
+        <h2 className="text-3xl font-semibold text-center">Doctors</h2>
+        <div className="flex justify-end">
+          <button
+            onClick={() => {
+              setEditingDoctor(null);
+              setIsModalOpen(true);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-md flex items-center gap-2"
+          >
+            <Plus size={18} /> Add Doctor
+          </button>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+      {/* Search */}
+      <div className="mb-6 max-w-md mx-auto">
         <input
           type="text"
-          name="fullName"
-          value={form.fullName}
-          onChange={handleChange}
-          placeholder="Full Name"
-          className="w-full px-4 py-2 rounded-md border dark:bg-gray-700 dark:text-white"
-          required
+          placeholder="Search by name or specialization..."
+          className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <input
-          type="tel"
-          name="phone"
-          value={form.phone}
-          onChange={handleChange}
-          placeholder="Phone Number"
-          className="w-full px-4 py-2 rounded-md border dark:bg-gray-700 dark:text-white"
-          required
-        />
-        <input
-          type="text"
-          name="specialization"
-          value={form.specialization}
-          onChange={handleChange}
-          placeholder="Specialization"
-          className="w-full px-4 py-2 rounded-md border dark:bg-gray-700 dark:text-white"
-          required
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          {editingIndex !== null ? "Save Changes" : "Add Doctor"}
-        </button>
-      </form>
+      </div>
 
-      {doctors.length === 0 ? (
-        <p className="text-center text-gray-500 dark:text-gray-400">No doctors found.</p>
+      {/* Cards */}
+      {filteredDoctors.length === 0 ? (
+        <p className="text-center text-gray-500 dark:text-gray-400">
+          No doctors found.
+        </p>
       ) : (
-        <ul className="space-y-3">
-          {doctors.map((doctor, index) => (
-            <li
-              key={index}
-              className="p-4 bg-gray-100 dark:bg-gray-700 rounded-md flex justify-between items-center"
-            >
-              <div>
-                <p className="font-semibold">{doctor.fullName}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{doctor.phone}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{doctor.specialization}</p>
-              </div>
-              <div>
-                <button
-                  onClick={() => handleEdit(index)}
-                  className="text-blue-600 dark:text-blue-400 text-sm underline"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(index)}
-                  className="text-red-600 dark:text-red-400 text-sm underline ml-4"
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {filteredDoctors.map((doc) => (
+            <DoctorCard
+              key={doc.id}
+              doctor={doc}
+              onEdit={() => handleEdit(doc)}
+              onDelete={() => setConfirmDeleteDoctor(doc)} // <-- передаємо об’єкт
+            />
           ))}
-        </ul>
+        </div>
+      )}
+
+      {/* Add/Edit Modal */}
+      {isModalOpen && (
+        <DoctorModal
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingDoctor(null);
+          }}
+          onSave={handleAdd}
+          initialData={editingDoctor}
+        />
+      )}
+
+      {/* Confirm Delete Modal */}
+      {confirmDeleteDoctor && (
+        <ConfirmDeleteModal
+          doctor={confirmDeleteDoctor}
+          onConfirm={() => {
+            handleDelete(confirmDeleteDoctor.id);
+            setConfirmDeleteDoctor(null);
+          }}
+          onCancel={() => setConfirmDeleteDoctor(null)}
+        />
       )}
     </div>
   );

@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import Doctors from "./pages/Doctors";
+import About from "./pages/AboutPage";
+import AppointmentPage from "./pages/AppointmentPage";
 
 function Home() {
   return (
@@ -39,6 +42,9 @@ export default function App() {
       <div className="pt-20">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/doctors" element={<Doctors />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/appointments" element={<AppointmentPage />} />
         </Routes>
       </div>
     </div>
