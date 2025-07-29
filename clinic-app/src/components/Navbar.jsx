@@ -21,7 +21,6 @@ export default function Navbar({ toggleTheme, isDark }) {
     { to: "/", label: "Home", icon: <Home size={16} /> },
     { to: "/doctors", label: "Doctors", icon: <Stethoscope size={16} /> },
     { to: "/appointments", label: "Appointments", icon: <Calendar size={16} /> },
-    { to: "/history", label: "History", icon: <History size={16} /> },
     { to: "/profile", label: "Profile", icon: <User size={16} /> },
     { to: "/about", label: "About", icon: <Settings size={16} /> },
   ];

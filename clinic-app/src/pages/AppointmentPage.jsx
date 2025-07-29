@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from "react";
 import AppointmentCard from "../components/AppointmentCard";
 import AppointmentModal from "../components/AppointmentModal";
+import DeleteAppointmentModal from "../components/DeleteAppointmentModal";
 
 export default function AppointmentPage() {
   const [appointments, setAppointments] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = useState(null);
   const [doctors, setDoctors] = useState([]);
+  const [patients, setPatients] = useState([]);
 
   useEffect(() => {
     const storedAppointments = JSON.parse(localStorage.getItem("appointments")) || [];
-    setAppointments(storedAppointments);
-
     const storedDoctors = JSON.parse(localStorage.getItem("doctors")) || [];
+    const storedPatients = JSON.parse(localStorage.getItem("patients")) || [];
+
+    setAppointments(storedAppointments);
     setDoctors(storedDoctors);
+    setPatients(storedPatients);
   }, []);
 
   const saveAppointments = (updated) => {
@@ -69,7 +75,10 @@ export default function AppointmentPage() {
               key={appointment.id}
               appointment={appointment}
               onEdit={() => handleEdit(appointment)}
-              onDelete={() => handleDelete(appointment.id)}
+              onDelete={() => {
+                setAppointmentToDelete(appointment);
+                setIsDeleteModalOpen(true);
+              }}
             />
           ))}
         </div>
@@ -84,6 +93,22 @@ export default function AppointmentPage() {
           onSave={handleSave}
           initialData={editingAppointment}
           doctors={doctors}
+          patients={patients}
+        />
+      )}
+
+      {isDeleteModalOpen && (
+        <DeleteAppointmentModal
+          appointment={appointmentToDelete}
+          onCancel={() => {
+            setIsDeleteModalOpen(false);
+            setAppointmentToDelete(null);
+          }}
+          onConfirm={(id) => {
+            handleDelete(id);
+            setIsDeleteModalOpen(false);
+            setAppointmentToDelete(null);
+          }}
         />
       )}
     </div>

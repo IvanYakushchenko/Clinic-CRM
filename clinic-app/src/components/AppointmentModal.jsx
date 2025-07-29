@@ -1,6 +1,6 @@
 import { useState, Fragment } from "react";
 import { Listbox, Transition } from "@headlessui/react";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Calendar, User, Stethoscope } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { uk } from "date-fns/locale";
@@ -9,17 +9,15 @@ import { registerLocale } from "react-datepicker";
 
 registerLocale("uk", uk);
 
-export default function AppointmentModal({ onClose, onSave, initialData = {}, doctors = [] }) {
+export default function AppointmentModal({ onClose, onSave, initialData = {}, doctors = [], patients = [] }) {
   const {
     doctor = "",
     date = "",
     time = "",
     patient = "",
-  } = initialData || {};
+  } = initialData ?? {};
 
-  // 🧠 Конвертуємо дату та час в об'єкт Date
-  const initialDateTime =
-    date && time ? new Date(`${date}T${time}`) : null;
+  const initialDateTime = date && time ? new Date(`${date}T${time}`) : null;
 
   const [form, setForm] = useState({
     doctor,
@@ -62,82 +60,110 @@ export default function AppointmentModal({ onClose, onSave, initialData = {}, do
     onSave(appointment);
   };
 
+  const filteredPatients = patients.filter((p) =>
+    p.name.toLowerCase().includes(form.patient.toLowerCase())
+  );
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-md w-full max-w-md shadow-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md shadow-lg">
         <h2 className="text-xl font-semibold mb-4 dark:text-white">
           {initialData?.id ? "Edit Appointment" : "New Appointment"}
         </h2>
+
         {error && (
           <p className="text-red-600 dark:text-red-400 mb-2">{error}</p>
         )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Doctor */}
-          <Listbox
-            value={selectedDoctor}
-            onChange={(doc) => handleChange("doctor", doc.name)}
-          >
-            <div className="relative">
-              <Listbox.Button className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 text-left dark:text-white flex justify-between items-center">
-                <span>
-                  {selectedDoctor ? `Dr. ${selectedDoctor.name}` : "Select Doctor"}
-                </span>
-                <ChevronDown size={16} />
-              </Listbox.Button>
-              <Transition
-                as={Fragment}
-                leave="transition ease-in duration-100"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Listbox.Options className="absolute mt-1 w-full bg-white dark:bg-gray-700 border rounded-md z-10 shadow-lg">
-                  {doctors.map((doc) => (
-                    <Listbox.Option
-                      key={doc.id}
-                      value={doc}
-                      className={({ active }) =>
-                        `cursor-pointer px-4 py-2 ${active ? "bg-blue-500 text-white" : "dark:text-white"}`
-                      }
-                    >
-                      {({ selected }) => (
-                        <span className="flex justify-between">
-                          {`Dr. ${doc.name}`}
-                          {selected && <Check size={16} />}
-                        </span>
-                      )}
-                    </Listbox.Option>
-                  ))}
-                </Listbox.Options>
-              </Transition>
-            </div>
-          </Listbox>
+          <div>
+            <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <Stethoscope size={16} /> Doctor
+            </label>
+            <Listbox
+              value={selectedDoctor}
+              onChange={(doc) => handleChange("doctor", doc.name)}
+            >
+              <div className="relative">
+                <Listbox.Button className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 text-left dark:text-white flex justify-between items-center">
+                  <span>
+                    {selectedDoctor ? `Dr. ${selectedDoctor.name}` : "Select Doctor"}
+                  </span>
+                  <ChevronDown size={16} />
+                </Listbox.Button>
+                <Transition
+                  as={Fragment}
+                  leave="transition ease-in duration-100"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Listbox.Options className="absolute mt-1 w-full bg-white dark:bg-gray-700 border rounded-md z-10 shadow-lg max-h-60 overflow-y-auto">
+                    {doctors.map((doc) => (
+                      <Listbox.Option
+                        key={doc.id}
+                        value={doc}
+                        className={({ active }) =>
+                          `cursor-pointer px-4 py-2 ${
+                            active ? "bg-blue-500 text-white" : "dark:text-white"
+                          }`
+                        }
+                      >
+                        {({ selected }) => (
+                          <span className="flex justify-between">
+                            {`Dr. ${doc.name}`}
+                            {selected && <Check size={16} />}
+                          </span>
+                        )}
+                      </Listbox.Option>
+                    ))}
+                  </Listbox.Options>
+                </Transition>
+              </div>
+            </Listbox>
+          </div>
 
-          {/* Date & Time Picker */}
-          <DatePicker
-            selected={form.dateTime}
-            onChange={(val) => handleChange("dateTime", val)}
-            showTimeSelect
-            timeIntervals={15}
-            timeCaption="Час"
-            dateFormat="dd.MM.yyyy HH:mm"
-            locale="uk"
-            minDate={new Date()}
-            placeholderText="Оберіть дату та час"
-            className="p-2 border rounded-md dark:bg-gray-700 dark:text-white w-full"
-          />
+          {/* Date & Time */}
+          <div>
+            <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <Calendar size={16} /> Date & Time
+            </label>
+            <DatePicker
+              selected={form.dateTime}
+              onChange={(val) => handleChange("dateTime", val)}
+              showTimeSelect
+              timeIntervals={15}
+              timeCaption="Час"
+              dateFormat="dd.MM.yyyy HH:mm"
+              locale="uk"
+              minDate={new Date()}
+              placeholderText="Оберіть дату та час"
+              className="p-2 border rounded-md dark:bg-gray-700 dark:text-white w-full"
+            />
+          </div>
 
           {/* Patient */}
-          <input
-            type="text"
-            name="patient"
-            value={form.patient}
-            onChange={(e) => handleChange("patient", e.target.value)}
-            placeholder="Patient Full Name"
-            className="p-2 border rounded-md dark:bg-gray-700 dark:text-white"
-          />
+          <div>
+            <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <User size={16} /> Patient
+            </label>
+            <input
+              type="text"
+              value={form.patient}
+              onChange={(e) => handleChange("patient", e.target.value)}
+              placeholder="Enter patient name"
+              className="p-2 border rounded-md dark:bg-gray-700 dark:text-white w-full"
+              list="patient-options"
+            />
+            <datalist id="patient-options">
+              {filteredPatients.map((p) => (
+                <option key={p.id} value={p.name} />
+              ))}
+            </datalist>
+          </div>
 
           {/* Buttons */}
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
