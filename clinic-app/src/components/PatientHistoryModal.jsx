@@ -1,31 +1,32 @@
-// PatientHistoryModal.jsx
 import React, { useEffect, useState } from "react";
 import { X, Star } from "lucide-react";
 
 export default function PatientHistoryModal({ patient, onClose }) {
   const [appointments, setAppointments] = useState([]);
-  const [ratings, setRatings] = useState({});
 
   useEffect(() => {
     const storedAppointments = JSON.parse(localStorage.getItem("appointments")) || [];
-    const storedRatings = JSON.parse(localStorage.getItem("ratings")) || {};
 
-    // Порівнюємо лише patientId
     const patientAppointments = storedAppointments.filter(
       (a) => a.patientId === patient.id
     );
 
     setAppointments(patientAppointments);
-    setRatings(storedRatings);
   }, [patient]);
 
   const handleRate = (appointmentId, ratingValue) => {
-    const updatedRatings = {
-      ...ratings,
-      [appointmentId]: ratingValue,
-    };
-    setRatings(updatedRatings);
-    localStorage.setItem("ratings", JSON.stringify(updatedRatings));
+    const updatedAppointments = appointments.map((appt) =>
+      appt.id === appointmentId ? { ...appt, rating: ratingValue } : appt
+    );
+
+    setAppointments(updatedAppointments);
+
+    // Оновлюємо всі appointments у localStorage
+    const allAppointments = JSON.parse(localStorage.getItem("appointments")) || [];
+    const updatedAllAppointments = allAppointments.map((appt) =>
+      appt.id === appointmentId ? { ...appt, rating: ratingValue } : appt
+    );
+    localStorage.setItem("appointments", JSON.stringify(updatedAllAppointments));
   };
 
   return (
@@ -68,7 +69,7 @@ export default function PatientHistoryModal({ patient, onClose }) {
                       key={value}
                       size={18}
                       className={`cursor-pointer ${
-                        ratings[appointment.id] >= value
+                        appointment.rating >= value
                           ? "text-yellow-400"
                           : "text-gray-400"
                       }`}

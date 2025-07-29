@@ -3,6 +3,8 @@ import { Plus } from "lucide-react";
 import DoctorModal from "../components/DoctorModal";
 import DoctorCard from "../components/DoctorCard";
 import ConfirmDeleteModal from "../components/DeleteDoctorModal";
+import { Listbox } from "@headlessui/react";
+import { showSuccess, showWarning } from "../utils/toast.jsx";
 
 export default function DoctorsPage() {
   const [doctors, setDoctors] = useState(() => {
@@ -10,10 +12,17 @@ export default function DoctorsPage() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [appointments, setAppointments] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [confirmDeleteDoctor, setConfirmDeleteDoctor] = useState(null); // Замість ID
+  const [confirmDeleteDoctor, setConfirmDeleteDoctor] = useState(null);
+  const [selectedSpecialization, setSelectedSpecialization] = useState("All");
+
+  useEffect(() => {
+    const storedAppointments = JSON.parse(localStorage.getItem("appointments")) || [];
+    setAppointments(storedAppointments);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("doctors", JSON.stringify(doctors));
@@ -24,8 +33,10 @@ export default function DoctorsPage() {
       setDoctors((prev) =>
         prev.map((doc) => (doc.id === editingDoctor.id ? newDoctor : doc))
       );
+      showSuccess("Doctor updated successfully");
     } else {
       setDoctors((prev) => [...prev, newDoctor]);
+      showSuccess("Doctor added successfully");
     }
     setIsModalOpen(false);
     setEditingDoctor(null);
@@ -39,14 +50,19 @@ export default function DoctorsPage() {
   const handleDelete = (id) => {
     const updated = doctors.filter((doc) => doc.id !== id);
     setDoctors(updated);
+    showWarning("Doctor deleted successfully");
   };
+
+  const specializations = ["All", ...new Set(doctors.map((doc) => doc.specialization))];
 
   const filteredDoctors = doctors.filter((doc) => {
     const term = searchTerm.toLowerCase();
-    return (
+    const matchesSearch =
       doc.name.toLowerCase().includes(term) ||
-      doc.specialization.toLowerCase().includes(term)
-    );
+      doc.specialization.toLowerCase().includes(term);
+    const matchesSpecialization =
+      selectedSpecialization === "All" || doc.specialization === selectedSpecialization;
+    return matchesSearch && matchesSpecialization;
   });
 
   return (
@@ -66,6 +82,32 @@ export default function DoctorsPage() {
             <Plus size={18} /> Add Doctor
           </button>
         </div>
+      </div>
+
+      {/* Specialization Filter */}
+      <div className="mb-4 max-w-md mx-auto">
+        <Listbox value={selectedSpecialization} onChange={setSelectedSpecialization}>
+          <div className="relative">
+            <Listbox.Button className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 text-left shadow-sm focus:outline-none dark:text-white">
+              {selectedSpecialization}
+            </Listbox.Button>
+            <Listbox.Options className="absolute mt-1 w-full bg-white dark:bg-gray-700 border rounded-md shadow-lg z-10 max-h-60 overflow-auto">
+              {specializations.map((spec) => (
+                <Listbox.Option
+                  key={spec}
+                  value={spec}
+                  className={({ active }) =>
+                    `cursor-pointer px-4 py-2 ${
+                      active ? "bg-blue-100 dark:bg-gray-600" : ""
+                    }`
+                  }
+                >
+                  {spec}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </div>
+        </Listbox>
       </div>
 
       {/* Search */}
@@ -91,7 +133,8 @@ export default function DoctorsPage() {
               key={doc.id}
               doctor={doc}
               onEdit={() => handleEdit(doc)}
-              onDelete={() => setConfirmDeleteDoctor(doc)} // <-- передаємо об’єкт
+              onDelete={() => setConfirmDeleteDoctor(doc)}
+              appointments={appointments}
             />
           ))}
         </div>

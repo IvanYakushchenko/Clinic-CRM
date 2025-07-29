@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import AppointmentCard from "../components/AppointmentCard";
 import AppointmentModal from "../components/AppointmentModal";
 import DeleteAppointmentModal from "../components/DeleteAppointmentModal";
+import { showSuccess, showWarning } from "../utils/toast.jsx"; // не забудь .jsx!
 
 export default function AppointmentPage() {
   const [appointments, setAppointments] = useState([]);
@@ -31,8 +32,10 @@ export default function AppointmentPage() {
     let updated;
     if (appointments.some((a) => a.id === appointment.id)) {
       updated = appointments.map((a) => (a.id === appointment.id ? appointment : a));
+      showSuccess("Appointment updated successfully");
     } else {
       updated = [...appointments, appointment];
+      showSuccess("Appointment added successfully");
     }
     saveAppointments(updated);
     setIsModalOpen(false);
@@ -42,6 +45,7 @@ export default function AppointmentPage() {
   const handleDelete = (id) => {
     const updated = appointments.filter((a) => a.id !== id);
     saveAppointments(updated);
+    showWarning("Appointment deleted");
   };
 
   const handleEdit = (appointment) => {
@@ -70,17 +74,19 @@ export default function AppointmentPage() {
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AppointmentCard
-            key={appointment.id}
-            appointment={appointment}
-            doctors={doctors}
-            patients={patients}
-            onEdit={() => handleEdit(appointment)}
-            onDelete={() => {
+          {appointments.map((appointment) => (
+            <AppointmentCard
+              key={appointment.id}
+              appointment={appointment}
+              doctors={doctors}
+              patients={patients}
+              onEdit={() => handleEdit(appointment)}
+              onDelete={() => {
                 setAppointmentToDelete(appointment);
                 setIsDeleteModalOpen(true);
-            }}
+              }}
             />
+          ))}
         </div>
       )}
 

@@ -1,41 +1,59 @@
-import { Pencil, Trash2, UserCircle2 } from "lucide-react";
+import React from "react";
+import { Pencil, Trash2, Star } from "lucide-react";
 
-export default function DoctorCard({ doctor, onEdit, onDelete }) {
+export default function DoctorCard({ doctor, onEdit, onDelete, appointments = [] }) {
+  const doctorAppointments = appointments.filter(
+    (appt) => appt.doctorId === doctor.id && appt.rating
+  );
+
+  const averageRating =
+    doctorAppointments.length > 0
+      ? (
+          doctorAppointments.reduce((sum, appt) => sum + Number(appt.rating), 0) /
+          doctorAppointments.length
+        ).toFixed(1)
+      : null;
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 flex flex-col items-start space-y-4 transition-transform hover:scale-[1.015] duration-200">
-      {/* Icon */}
-      <div className="w-full flex justify-center">
-        <UserCircle2 className="text-blue-500 dark:text-blue-400" size={48} />
+    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+      <div className="space-y-2 text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold">{doctor.name}</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-300">{doctor.specialization}</p>
+
+        {/* Rating */}
+        <div className="flex items-center gap-1 mt-2">
+          {averageRating ? (
+            <>
+              {[...Array(5)].map((_, index) => (
+                <Star
+                  key={index}
+                  size={16}
+                  fill={index < Math.round(averageRating) ? "#facc15" : "none"}
+                  stroke="#facc15"
+                />
+              ))}
+              <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                {averageRating}/5
+              </span>
+            </>
+          ) : (
+            <span className="text-sm text-gray-400">No ratings yet</span>
+          )}
+        </div>
       </div>
 
-      {/* Info section */}
-      <div className="w-full text-left space-y-1">
-        <p className="text-lg font-semibold text-gray-900 dark:text-white">
-          {doctor.name}
-        </p>
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          <span className="font-medium">Phone:</span> {doctor.phone}
-        </p>
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          <span className="font-medium">Specialization:</span> {doctor.specialization}
-        </p>
-      </div>
-
-      {/* Action buttons */}
-      <div className="mt-auto flex gap-2 w-full">
+      <div className="flex justify-end gap-2 mt-4">
         <button
           onClick={onEdit}
-          className="flex-1 flex items-center justify-center gap-1 text-sm bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-3 py-1.5 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
         >
-          <Pencil size={16} />
-          Edit
+          <Pencil size={16} /> Edit
         </button>
         <button
           onClick={onDelete}
-          className="flex-1 flex items-center justify-center gap-1 text-sm bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 px-3 py-1.5 rounded-md hover:bg-red-200 dark:hover:bg-red-800 transition"
+          className="flex items-center gap-1 text-sm text-red-600 hover:text-red-800"
         >
-          <Trash2 size={16} />
-          Delete
+          <Trash2 size={16} /> Delete
         </button>
       </div>
     </div>
