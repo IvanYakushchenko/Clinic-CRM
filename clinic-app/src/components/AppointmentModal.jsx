@@ -46,15 +46,29 @@ export default function AppointmentModal({ onClose, onSave, initialData = {}, do
       return;
     }
 
+    const matchedPatient = patients.find(
+      (p) =>
+        p.name.toLowerCase().trim() === form.patient.toLowerCase().trim()
+    );
+
+    if (!matchedPatient) {
+      setError("Patient not found. Please choose a patient from the list.");
+      return;
+    }
+
+    const selectedDoctorObj = doctors.find((d) => d.name === form.doctor);
+
     const formattedDate = form.dateTime.toISOString().split("T")[0];
     const formattedTime = form.dateTime.toTimeString().slice(0, 5);
 
     const appointment = {
       id: initialData?.id || Date.now(),
       doctor: form.doctor,
+      doctorId: selectedDoctorObj?.id || null,
       date: formattedDate,
       time: formattedTime,
       patient: form.patient,
+      patientId: matchedPatient.id,
     };
 
     onSave(appointment);

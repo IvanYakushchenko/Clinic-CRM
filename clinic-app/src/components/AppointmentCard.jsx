@@ -8,7 +8,17 @@ import {
   Trash2,
 } from "lucide-react";
 
-export default function AppointmentCard({ appointment, onEdit, onDelete }) {
+export default function AppointmentCard({ appointment, onEdit, onDelete, doctors, patients }) {
+  if (!appointment) return null;
+
+  const doctor = doctors.find((d) => d.id === appointment.doctorId);
+  const patient = patients.find((p) => p.id === appointment.patientId);
+
+  const doctorName = doctor ? `Dr. ${doctor.name}` : "Unknown doctor";
+  const patientName = patient ? patient.name : "Unknown patient";
+  const date = appointment.date || "-";
+  const time = appointment.time || "-";
+
   return (
     <div className="p-5 bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700 hover:shadow-xl transition flex flex-col justify-between">
       <div className="space-y-3 text-gray-800 dark:text-white">
@@ -17,7 +27,7 @@ export default function AppointmentCard({ appointment, onEdit, onDelete }) {
             <Stethoscope size={16} />
             <span>Doctor</span>
           </div>
-          <p className="text-lg font-medium">Dr. {appointment.doctor}</p>
+          <p className="text-lg font-medium">{doctorName}</p>
         </div>
 
         <div>
@@ -25,7 +35,7 @@ export default function AppointmentCard({ appointment, onEdit, onDelete }) {
             <User size={16} />
             <span>Patient</span>
           </div>
-          <p>{appointment.patient}</p>
+          <p>{patientName}</p>
         </div>
 
         <div>
@@ -33,7 +43,7 @@ export default function AppointmentCard({ appointment, onEdit, onDelete }) {
             <CalendarDays size={16} />
             <span>Date</span>
           </div>
-          <p>{appointment.date}</p>
+          <p>{date}</p>
         </div>
 
         <div>
@@ -41,7 +51,7 @@ export default function AppointmentCard({ appointment, onEdit, onDelete }) {
             <Clock size={16} />
             <span>Time</span>
           </div>
-          <p>{appointment.time}</p>
+          <p>{time}</p>
         </div>
       </div>
 

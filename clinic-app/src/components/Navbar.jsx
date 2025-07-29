@@ -6,7 +6,6 @@ import {
   Home,
   User,
   Calendar,
-  History,
   Settings,
   Stethoscope,
   Menu,
