@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Doctors from "./pages/Doctors";
 import About from "./pages/AboutPage";
 import AppointmentPage from "./pages/AppointmentPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function Home() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/doctors" element={<Doctors />} />
           <Route path="/about" element={<About />} />
           <Route path="/appointments" element={<AppointmentPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </div>
     </div>
