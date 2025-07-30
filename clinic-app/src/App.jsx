@@ -5,17 +5,7 @@ import Doctors from "./pages/Doctors";
 import About from "./pages/AboutPage";
 import AppointmentPage from "./pages/AppointmentPage";
 import ProfilePage from "./pages/ProfilePage";
-
-function Home() {
-  return (
-    <div className="p-6 text-center">
-      <h1 className="text-4xl font-bold mb-4">Welcome</h1>
-      <p className="text-gray-600 dark:text-gray-300">
-        Please select a section from the menu.
-      </p>
-    </div>
-  );
-}
+import Home from "./pages/HomePage";
 
 export default function App() {
   const [isDark, setIsDark] = useState(
