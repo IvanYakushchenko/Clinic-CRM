@@ -3,7 +3,7 @@ import AppointmentCard from "../components/AppointmentCard";
 import AppointmentModal from "../components/AppointmentModal";
 import DeleteAppointmentModal from "../components/DeleteAppointmentModal";
 import ConfirmDeleteOldModal from "../components/ConfirmDeleteOldModal";
-import { showSuccess, showWarning } from "../utils/toast.jsx"; // не забудь .jsx!
+import { showSuccess, showWarning } from "../utils/toast.jsx";
 
 export default function AppointmentPage() {
   const [appointments, setAppointments] = useState([]);

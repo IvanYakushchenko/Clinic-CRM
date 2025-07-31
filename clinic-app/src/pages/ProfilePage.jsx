@@ -11,7 +11,7 @@ export default function ProfilePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPatient, setEditingPatient] = useState(null);
-  const [patientToDelete, setPatientToDelete] = useState(null); // новий стан
+  const [patientToDelete, setPatientToDelete] = useState(null);
 
   // Load from localStorage
   useEffect(() => {
@@ -25,14 +25,23 @@ export default function ProfilePage() {
   };
 
   const handleSave = (patient) => {
+    // Ensure consistent key naming
+    const normalizedPatient = {
+      ...patient,
+      birthDate: patient.birthDate || patient.birthdate,
+    };
+
     if (editingPatient) {
       const updated = patients.map((p) =>
-        p.id === patient.id ? patient : p
+        p.id === patient.id ? normalizedPatient : p
       );
       savePatients(updated);
       toast.success("Patient updated");
     } else {
-      const newPatient = { ...patient, id: crypto.randomUUID() };
+      const newPatient = {
+        ...normalizedPatient,
+        id: crypto.randomUUID(),
+      };
       savePatients([...patients, newPatient]);
       toast.success("Patient added");
     }
@@ -92,8 +101,8 @@ export default function ProfilePage() {
             <PatientCard
               key={patient.id}
               patient={patient}
-              onEdit={(p) => {
-                setEditingPatient(p);
+              onEdit={() => {
+                setEditingPatient(patient);
                 setModalOpen(true);
               }}
               onDelete={() => setPatientToDelete(patient)}

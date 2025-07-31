@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, Listbox } from "@headlessui/react";
 import { X, Check, ChevronDown } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const genderOptions = ["Male", "Female", "Other"];
 
 export default function PatientModal({ onClose, onSave, initialData }) {
   const [name, setName] = useState(initialData?.name || "");
   const [phone, setPhone] = useState(initialData?.phone || "");
-  const [age, setAge] = useState(initialData?.age || "");
+  const [birthdate, setBirthdate] = useState(
+    initialData?.birthdate ? new Date(initialData.birthdate) : null
+  );
   const [gender, setGender] = useState(initialData?.gender || "");
   const [error, setError] = useState("");
 
   useEffect(() => {
     setError("");
-  }, [name, phone, age, gender]);
+  }, [name, phone, birthdate, gender]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!name.trim() || !phone.trim() || !age || !gender) {
+    if (!name.trim() || !phone.trim() || !birthdate || !gender) {
       setError("Please fill out all fields");
       return;
     }
@@ -27,7 +31,7 @@ export default function PatientModal({ onClose, onSave, initialData }) {
       id: initialData?.id || null,
       name: name.trim(),
       phone: phone.trim(),
-      age: Number(age),
+      birthdate: birthdate.toISOString().split("T")[0],
       gender,
     };
 
@@ -37,7 +41,6 @@ export default function PatientModal({ onClose, onSave, initialData }) {
   return (
     <Dialog open={true} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
-
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="mx-auto max-w-md w-full rounded-xl bg-white dark:bg-gray-900 p-6 shadow-lg relative">
           {/* Close button */}
@@ -81,22 +84,24 @@ export default function PatientModal({ onClose, onSave, initialData }) {
               />
             </div>
 
-            {/* Age */}
+            {/* Birthdate */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Age
+                Date of Birth
               </label>
-              <input
-                type="number"
-                min="0"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
+              <DatePicker
+                selected={birthdate}
+                onChange={(date) => setBirthdate(date)}
+                dateFormat="yyyy-MM-dd"
+                showYearDropdown
+                scrollableYearDropdown
+                maxDate={new Date()}
                 className="mt-1 w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
-                placeholder="Enter age"
+                placeholderText="Select birth date"
               />
             </div>
 
-            {/* Gender using Listbox */}
+            {/* Gender */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Gender

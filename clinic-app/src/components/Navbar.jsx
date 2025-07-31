@@ -20,7 +20,7 @@ export default function Navbar({ toggleTheme, isDark }) {
     { to: "/", label: "Home", icon: <Home size={16} /> },
     { to: "/doctors", label: "Doctors", icon: <Stethoscope size={16} /> },
     { to: "/appointments", label: "Appointments", icon: <Calendar size={16} /> },
-    { to: "/profile", label: "Profile", icon: <User size={16} /> },
+    { to: "/profile", label: "Profiles", icon: <User size={16} /> },
     { to: "/about", label: "About", icon: <Settings size={16} /> },
   ];
 
@@ -52,7 +52,7 @@ export default function Navbar({ toggleTheme, isDark }) {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow p-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Logo */}
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Clinic Admin</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Clinic Admin CRM</h1>
 
         {/* Desktop nav */}
         <div className="hidden md:flex space-x-6">

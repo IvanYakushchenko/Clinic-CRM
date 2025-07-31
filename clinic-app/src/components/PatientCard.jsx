@@ -6,12 +6,26 @@ import {
   UserRound,
   Phone,
   Cake,
-  VenetianMask
+  VenetianMask,
 } from "lucide-react";
 import PatientHistoryModal from "./PatientHistoryModal";
 
+function calculateAge(birthDateString) {
+  if (!birthDateString) return "N/A";
+  const today = new Date();
+  const birthDate = new Date(birthDateString);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const hasHadBirthdayThisYear =
+    today.getMonth() > birthDate.getMonth() ||
+    (today.getMonth() === birthDate.getMonth() &&
+      today.getDate() >= birthDate.getDate());
+  if (!hasHadBirthdayThisYear) age--;
+  return age;
+}
+
 export default function PatientCard({ patient, onEdit, onDelete }) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const age = calculateAge(patient.birthDate);
 
   return (
     <div className="p-5 bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700 hover:shadow-xl transition flex flex-col justify-between">
@@ -40,7 +54,7 @@ export default function PatientCard({ patient, onEdit, onDelete }) {
             <Cake size={16} />
             <span>Age</span>
           </div>
-          <p>{patient.age}</p>
+          <p>{age}</p>
         </div>
 
         {/* Gender */}
